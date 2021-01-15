@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+{{- if eq .Values.internaltls "true" }}
+metadata:
+  name: chat-backend-{{ .Values.nontld }}
+{{ else }}
+metadata:
+  name: chat-{{ .Values.nontld }}
+{{- end }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: mattermost

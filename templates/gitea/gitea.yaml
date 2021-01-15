@@ -1,0 +1,53 @@
+apiVersion: apps/v1 
+kind: ReplicaSet
+metadata:
+  name: gitea
+  labels:
+    app: gitea
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: gitea
+      labels:
+        name: gitea
+        app: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.13.0
+        env:
+        - name: DB_HOST
+          value: "gpg-{{ .Values.nontld }}:5432"
+        - name: DB_TYPE
+          value: "postgres"
+        - name: DB_USER
+          value: "gitea"
+        - name: DB_PASS
+          value: "{{ .Values.gitea.pgpass }}"
+        - name: DB_NAME
+          value: "gitea"
+{{- if eq .Values.internaltls "true" }}
+        - name: ROOT_URL
+          value: "https://share.{{ .Values.fqdn }}"
+{{ else }}
+        - name: ROOT_URL
+          value: "http://share.{{ .Values.fqdn }}"
+{{- end }}
+        volumeMounts:
+        - name: gdata
+          mountPath: /data
+        - name: etclocaltime
+          mountPath: /etc/localtime
+          readOnly: true
+      volumes:
+      - name: gdata
+        persistentVolumeClaim:
+          claimName: g-pvc
+      - name: etclocaltime
+        hostPath:
+          path: /etc/localtime
+  selector:
+    matchLabels:
+      name: gitea
+

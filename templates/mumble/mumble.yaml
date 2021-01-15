@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mumble
+spec:
+  template:
+    metadata:
+      name: mumble
+      labels: 
+        name: mumble
+    spec:
+      volumes:
+        - name: mumble-data
+          persistentVolumeClaim:
+            claimName: mumble-pvc
+      containers:
+      - name: mumble
+        image: mattikus/murmur
+        volumeMounts:
+        - name: mumble-data
+          mountPath: "/data"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SUPERUSER_PASSWORD
+          value: "{{ .Values.mumble.password }}"
+  replicas: 1 
+  selector:
+    matchLabels:
+      name: mumble
+

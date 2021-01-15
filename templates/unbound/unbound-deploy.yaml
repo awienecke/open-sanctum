@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: unbound
+spec:
+  template:
+    metadata:
+      name: unbound
+      labels: 
+        name: unbound
+    spec:
+      volumes:
+        - name: unbound-config
+          configMap:
+            name: resolveconfig
+        - name: arecord-config
+          configMap:
+            name: arecords
+      containers:
+      - name: unbound
+        image: jsbear/unbound
+        volumeMounts:
+        - name: unbound-config
+          mountPath: "/opt/unbound/etc/unbound/resolve.conf"
+          subPath: resolve.conf
+        env:
+        - name: DOMTLD
+          value: "{{ .Values.domain }}"
+        - name: NONTLD
+          value: "{{ .Values.nontld }}"
+        - name: SUBDOMS
+          value: "{{ .Values.services }}"
+        - name: LOCKDN
+          value: "{{ .Values.dnslockdown }}"
+        securityContext:
+#          privileged: true
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+#        imagePullPolicy: IfNotPresent
+  replicas: 1 
+  selector:
+    matchLabels:
+      name: unbound
+

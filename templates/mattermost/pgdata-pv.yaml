@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mpgdata-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: "{{ .Values.mattermost.pgsize }}"
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "{{ .Values.mattermost.pghostpath }}"
+

@@ -1,0 +1,36 @@
+domain: domain.tld
+nontld: domain
+services: "dns gpg mpg chat voice vpn share"
+# Change "internaltls" to true if you have configmaps's loaded with the keys, else, leave it false.
+# You will need 3 files with the following names and requirements:
+# privkey.pem - privkey - this should only contain the private key
+# fullchain.pem - cert - this should contain the cert and any chain info, cert first
+# server.pem - complete-pem - this contains the cert, chain, and private key
+# load each of these with meta name listed like follows:
+# kubectl create configmap --dry-run=client metaname --from-file filepathandname -o yaml > /path/to/helm/templates/directory
+# you can also just run it manually without dryrun, -o yaml, or the pipe, to deploy it to the cluster.
+internaltls: "true"
+# Set to "true" in order to disable external dns lookups while inside the vpn.
+dnslockdown: "true"
+vpn:
+# The FQDN needs to resolve to the server or load balancer that is hosting the sanctum. IP should work here.
+  fqdn: domain.tld
+  hostpath: /opt/vpndata
+  adminpass: "changeme"
+  protocol: "udp"
+mumble:
+  size: "10G"
+  hostpath: "/opt/mumble/"
+  password: "changeme"
+mattermost:
+  pgpass: "changeme"
+  pgsize: "20G"
+  pghostpath: "/opt/mpg/"
+  mmsize: "20G"
+  mmhostpath: "/opt/mattermost/"
+gitea:
+  pgpass: "changeme"
+  pgsize: "20G"
+  pghostpath: "/opt/gpg/"
+  gsize: "140G"
+  ghostpath: "/opt/gitea/"

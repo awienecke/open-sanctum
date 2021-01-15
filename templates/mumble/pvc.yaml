@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mumble-pvc
+spec:
+  storageClassName: ""
+  accessModes:
+  - ReadWriteOnce
+  volumeName: mumble-pv
+  resources:
+    requests:
+      storage: "{{ .Values.mumble.size }}"
+

@@ -1,0 +1,54 @@
+{{- if eq .Values.internaltls "true" }}
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx
+spec:
+  template:
+    metadata:
+      name: nginx
+      labels: 
+        name: nginx
+        app: nginx
+    spec:
+      volumes:
+        - name: nginx-share-config
+          configMap:
+            name: nginx-share-config
+        - name: nginx-chat-config
+          configMap:
+            name: nginx-chat-config
+        - name: ssh-conf
+          configMap:
+            name: share-ssh-conf
+        - name: priv
+          configMap:
+            name: privkey
+        - name: fullchain
+          configMap:
+            name: cert
+      containers:
+      - name: nginx
+        image: jsbear/nginx
+        volumeMounts:
+        - name: nginx-share-config
+          mountPath: "/etc/nginx/conf.d/share.conf"
+          subPath: share.conf
+        - name: nginx-chat-config
+          mountPath: "/etc/nginx/conf.d/chat.conf"
+          subPath: chat.conf
+        - name: ssh-conf
+          mountPath: "/etc/nginx/streams/ssh.conf"
+          subPath: ssh.conf
+        - name: priv
+          mountPath: "/opt/privkey.pem"
+          subPath: privkey.pem
+        - name: fullchain
+          mountPath: "/opt/fullchain.pem"
+          subPath: fullchain.pem
+#        imagePullPolicy: IfNotPresent
+  replicas: 1 
+  selector:
+    matchLabels:
+      name: nginx
+{{- end }}

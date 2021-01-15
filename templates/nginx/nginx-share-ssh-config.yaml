@@ -1,0 +1,18 @@
+{{- if eq .Values.internaltls "true" }}
+apiVersion: v1
+data:
+  ssh.conf: |
+    stream {
+      upstream ssh {
+        server share-backend-{{ .Values.nontld }}:22;
+      }
+      server {
+        listen  22;
+        proxy_pass ssh;
+      }
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: share-ssh-conf
+{{- end }}

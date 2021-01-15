@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: openvpn
+spec:
+  template:
+    metadata:
+      name: openvpn
+      labels: 
+        name: openvpn
+    spec:
+      volumes:
+        - name: vpndata
+          persistentVolumeClaim:
+            claimName: vpndata-claim
+{{- if eq .Values.internaltls "true" }}
+        - name: full-pem
+          configMap:
+            name: complete-pem
+{{- end }}
+      containers:
+      - name: openvpn-web
+        image: jsbear/internalvpn
+        env:
+        - name: WEB_ADMIN_SECRET
+          value: "{{ .Values.vpn.adminpass }}"
+        - name: VPN_FQDN 
+          value: "{{ .Values.vpn.fqdn }}"
+        - name: PROTO
+          value: "{{ .Values.vpn.protocol }}"
+        - name: DNS1
+          value: "dns-{{ .Values.nontld }}"
+        - name: DNS2
+          value: "dns-{{ .Values.nontld }}"
+        volumeMounts:
+        - name: vpndata
+          mountPath: "/etc/openvpn"
+{{- if eq .Values.internaltls "true" }}
+        - name: full-pem
+          mountPath: "/etc/lighttpd/ssl/server.pem"
+          subPath: "server.pem"
+{{- end }}
+        securityContext:
+          privileged: true
+  replicas: 1 
+  selector:
+    matchLabels:
+      name: openvpn

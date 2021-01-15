@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+{{- if eq .Values.internaltls "true" }}
+metadata:
+  name: share-backend-{{ .Values.nontld }}
+{{ else }}
+metadata:
+  name: share-{{ .Values.nontld }}
+{{- end }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  - port: 22
+    targetPort: 22
+    protocol: TCP
+    name: ssh
+  selector:
+    app: gitea

@@ -1,0 +1,53 @@
+apiVersion: apps/v1 
+kind: ReplicaSet
+metadata:
+  name: mattermost
+  labels:
+    app: mattermost
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: mattermost
+      labels:
+        name: mattermost
+        app: mattermost
+    spec:
+      containers:
+      - name: mattermost
+        image: "jsbear/mattermost:latest"
+        env:
+        - name: DB_DOM
+          value: "mpg-{{ .Values.nontld }}"
+        - name: DB_PORT
+          value: "5432"
+        - name: MM_USER
+          value: "mmuser"
+        - name: MM_PASS
+          value: "{{ .Values.mattermost.pgpass }}"
+        - name: MM_DB
+          value: "mattermost"
+        volumeMounts:
+        - name: mmdata
+          mountPath: /mattermost/data
+        - name: etclocaltime
+          mountPath: /etc/localtime
+          readOnly: true
+#        - name: mm-config
+#          mountPath: /mattermost/config/config.json
+#          subPath: config.json
+        imagePullPolicy: Always
+      volumes:
+      - name: mmdata
+        persistentVolumeClaim:
+          claimName: mm-pvc
+      - name: etclocaltime
+        hostPath:
+          path: /etc/localtime
+#      - name: mm-config
+#        configMap:
+#          name: mmconfig
+  selector:
+    matchLabels:
+      name: mattermost
+

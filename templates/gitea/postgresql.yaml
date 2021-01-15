@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: gpg
+spec:
+  template:
+    metadata:
+      name: gpg
+      labels:
+        name: gpg
+    spec:
+      volumes:
+        - name: gpgdata
+          persistentVolumeClaim:
+            claimName: gpgdata-pvc
+      containers:
+      - name: gpg
+        image: postgres
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "{{ .Values.gitea.pgpass }}"
+        - name: POSTGRES_DB
+          value: "gitea"
+        - name: POSTGRES_USER
+          value: "gitea"
+        volumeMounts:
+        - name: gpgdata
+          mountPath: "/var/lib/postgresql/data/"
+        imagePullPolicy: IfNotPresent
+  replicas: 1
+  selector:
+    matchLabels:
+      name: gpg
+
